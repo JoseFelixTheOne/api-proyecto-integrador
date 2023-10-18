@@ -1,5 +1,6 @@
 package com.cibertec.proyecto.integrador.services;
 
+import com.cibertec.proyecto.integrador.entity.Usuario;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
@@ -22,6 +23,30 @@ public class LoginService {
         int contador = jdbcTemplate.queryForObject(consultaSql, Integer.class);
         return contador;
     }
+
+    public Usuario loginUsuario(String nombreUsuario, String contra) {
+        String cifrado = cifrarCadena(contra);
+        String consultaSql = "SELECT id, username, email, document, role FROM users WHERE username=? AND password=?";
+        try {
+            Usuario usuarioEncontrado = jdbcTemplate.queryForObject(
+                    consultaSql,
+                    new Object[]{nombreUsuario, cifrado},
+                    (rs, rowNum) -> new Usuario(
+                            rs.getInt("id"),
+                            rs.getString("username"),
+                            rs.getString("email"),
+                            rs.getString("document"),
+                            rs.getInt("role")
+                    )
+            );
+            return usuarioEncontrado;
+        } catch (Exception e) {
+
+            return null;
+        }
+    }
+
+
 
     /*
 
