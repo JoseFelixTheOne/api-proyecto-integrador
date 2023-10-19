@@ -1,6 +1,7 @@
 package com.cibertec.proyecto.integrador.services;
 
 import com.cibertec.proyecto.integrador.entity.Usuario;
+import com.cibertec.proyecto.integrador.generic.Cifrado;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
@@ -18,14 +19,14 @@ public class LoginService {
     }
 
     public int login(String usuario,String contra) {
-        String cifrado= cifrarCadena(contra);
+        String cifrado= Cifrado.cifrarCadena(contra);
         String consultaSql = "SELECT COUNT(*) FROM users where username='"+usuario+"' and password='"+cifrado+"'";
         int contador = jdbcTemplate.queryForObject(consultaSql, Integer.class);
         return contador;
     }
 
     public Usuario loginUsuario(String nombreUsuario, String contra) {
-        String cifrado = cifrarCadena(contra);
+        String cifrado = Cifrado.cifrarCadena(contra);
         String consultaSql = "SELECT id, username, email, document, role FROM users WHERE username=? AND password=?";
         try {
             Usuario usuarioEncontrado = jdbcTemplate.queryForObject(
@@ -57,22 +58,6 @@ public class LoginService {
         'EF797C8118F02DFB649607DD5D3F8C7623048C9C063D532CC95C5ED7A898A64F','72722415',1)
 
     * */
-    public static String cifrarCadena(String cadena) {
-        try {
-            MessageDigest digest = MessageDigest.getInstance("SHA-256");
-            byte[] bytecadena = cadena.getBytes(StandardCharsets.UTF_8);
-            byte[] bytecifrado = digest.digest(bytecadena);
-            StringBuilder hexString = new StringBuilder();
-            for (byte b : bytecifrado) {
-                String hex = String.format("%02X", b);
-                hexString.append(hex);
-            }
 
-            return hexString.toString().toLowerCase();
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
 
 }
