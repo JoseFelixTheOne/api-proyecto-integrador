@@ -64,7 +64,6 @@ public class LoginController {
 
     @GetMapping("/loginusertoken/{usuario}/{contra}")
     public ResponseEntity<?> loginusertoken(@PathVariable String usuario, @PathVariable String contra) {
-        System.out.println("Entroooooo");
         Usuario usuarioEncontrado = servicio.loginUsuario(usuario, contra);
         if (usuarioEncontrado != null) {
             List<SimpleGrantedAuthority> authorities = Arrays.asList(new SimpleGrantedAuthority("ADMIN"));
