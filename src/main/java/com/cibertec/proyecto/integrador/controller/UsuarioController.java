@@ -6,6 +6,7 @@ import com.cibertec.proyecto.integrador.services.UsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,6 +23,7 @@ public class UsuarioController {
     }
 
     @PostMapping("/usuario")
+    @PreAuthorize("hasRole('ADMIN')") // Requiere el rol 'ADMIN' para acceder a este endpoint
     public ResponseEntity<String> crearUsuario(@RequestBody Usuario usuario) {
         int filasAfectadas = servicio.insertarUsuario(usuario);
         if (filasAfectadas == 1) {

@@ -1,14 +1,18 @@
 package com.cibertec.proyecto.integrador.controller;
+import com.cibertec.proyecto.integrador.config.JWTProvider;
 import com.cibertec.proyecto.integrador.entity.ErrorResponse;
+import com.cibertec.proyecto.integrador.entity.JwtResponse;
 import com.cibertec.proyecto.integrador.entity.Usuario;
 import com.cibertec.proyecto.integrador.services.LoginService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Arrays;
+import java.util.List;
 
 
 @RestController
@@ -16,11 +20,13 @@ import org.springframework.web.bind.annotation.RestController;
 public class LoginController {
 
     private final LoginService servicio;
+    private final JWTProvider jwtProvider;
 
 
     @Autowired
-    public LoginController(LoginService servicio ) {
+    public LoginController(LoginService servicio , JWTProvider jwtProvider ) {
         this.servicio=servicio;
+        this.jwtProvider=jwtProvider;
     }
 
     @GetMapping("/login/{usuario}/{contra}")
@@ -30,11 +36,46 @@ public class LoginController {
         return exito;
     }
 
+    @GetMapping("/verificar/{token}")
+    public ResponseEntity<String> tuMetodo(@PathVariable String token) {
+        if (jwtProvider.validateToken(token.replace("Bearer ", ""))) {
+            // El token es válido, realiza las operaciones necesarias
+            return ResponseEntity.ok("Token válido");
+        } else {
+            // El token no es válido, maneja el error adecuadamente
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token inválido");
+        }
+    }
+
     @GetMapping("/loginuser/{usuario}/{contra}")
-    public ResponseEntity<?> login(@PathVariable String usuario, @PathVariable String contra) {
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> login(@PathVariable String usuario, @PathVariable String contra, @RequestHeader("Authorization") String token) {
+        // Validar el token usando JWTProvider
+        if (jwtProvider.validateToken(token.replace("Bearer ", ""))) {
+            // El token es válido, procede con la autenticación
+            Usuario usuarioEncontrado = servicio.loginUsuario(usuario, contra);
+            if (usuarioEncontrado != null) {
+                return ResponseEntity.ok(usuarioEncontrado);
+            } else {
+                ErrorResponse errorResponse = new ErrorResponse("Credenciales incorrectas");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
+            }
+        } else {
+            // El token no es válido, devuelve una respuesta de error
+            ErrorResponse errorResponse = new ErrorResponse("Token no válido");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
+        }
+    }
+
+    @GetMapping("/loginusertoken/{usuario}/{contra}")
+    public ResponseEntity<?> loginusertoken(@PathVariable String usuario, @PathVariable String contra) {
+        System.out.println("Entroooooo");
         Usuario usuarioEncontrado = servicio.loginUsuario(usuario, contra);
         if (usuarioEncontrado != null) {
-            return ResponseEntity.ok(usuarioEncontrado);
+            List<SimpleGrantedAuthority> authorities = Arrays.asList(new SimpleGrantedAuthority("ADMIN"));
+            String token = jwtProvider
+                    .generateToken(usuarioEncontrado.getUsername(), authorities);
+            return ResponseEntity.ok(new JwtResponse(token));
         } else {
             ErrorResponse errorResponse = new ErrorResponse("Credenciales incorrectas");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
