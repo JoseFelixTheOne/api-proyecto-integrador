@@ -22,8 +22,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(jakarta.servlet.http.HttpServletRequest request, jakarta.servlet.http.HttpServletResponse response, jakarta.servlet.FilterChain filterChain) throws jakarta.servlet.ServletException, IOException {
 
-        System.out.println("Analiza");
-
         String token = extractToken(request);
         if (token != null && jwtTokenProvider.validateToken(token)) {
             Authentication auth = jwtTokenProvider.getAuthentication(token);
@@ -31,7 +29,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 SecurityContextHolder.getContext().setAuthentication(auth);
             }
         }
-        // Permitir el acceso a ciertas rutas sin autenticación
         String requestURI = request.getRequestURI();
         System.out.println(requestURI);
         if ("/api/loginusertoken".equals(requestURI) || "/api/otra-ruta-publica".equals(requestURI)) {
@@ -39,14 +36,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
-        // Restringir el acceso a otras rutas que no sean públicas
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.getWriter().write("Acceso no autorizado");
     }
 
     private String extractToken(jakarta.servlet.http.HttpServletRequest request) {
-        // Lógica para extraer el token del encabezado de la solicitud o del cuerpo, según sea tu caso.
-        // Devuelve null si el token no se encuentra en la solicitud.
         return "";
     }
 

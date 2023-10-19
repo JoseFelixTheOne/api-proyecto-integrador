@@ -39,10 +39,8 @@ public class LoginController {
     @GetMapping("/verificar/{token}")
     public ResponseEntity<String> tuMetodo(@PathVariable String token) {
         if (jwtProvider.validateToken(token.replace("Bearer ", ""))) {
-            // El token es válido, realiza las operaciones necesarias
             return ResponseEntity.ok("Token válido");
         } else {
-            // El token no es válido, maneja el error adecuadamente
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token inválido");
         }
     }
@@ -50,9 +48,7 @@ public class LoginController {
     @GetMapping("/loginuser/{usuario}/{contra}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> login(@PathVariable String usuario, @PathVariable String contra, @RequestHeader("Authorization") String token) {
-        // Validar el token usando JWTProvider
         if (jwtProvider.validateToken(token.replace("Bearer ", ""))) {
-            // El token es válido, procede con la autenticación
             Usuario usuarioEncontrado = servicio.loginUsuario(usuario, contra);
             if (usuarioEncontrado != null) {
                 return ResponseEntity.ok(usuarioEncontrado);
@@ -61,7 +57,6 @@ public class LoginController {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
             }
         } else {
-            // El token no es válido, devuelve una respuesta de error
             ErrorResponse errorResponse = new ErrorResponse("Token no válido");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
         }

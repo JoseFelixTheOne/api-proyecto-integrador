@@ -23,7 +23,7 @@ public class UsuarioController {
     }
 
     @PostMapping("/usuario")
-    @PreAuthorize("hasRole('ADMIN')") // Requiere el rol 'ADMIN' para acceder a este endpoint
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<String> crearUsuario(@RequestBody Usuario usuario) {
         int filasAfectadas = servicio.insertarUsuario(usuario);
         if (filasAfectadas == 1) {

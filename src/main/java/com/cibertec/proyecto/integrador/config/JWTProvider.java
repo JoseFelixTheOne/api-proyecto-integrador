@@ -22,7 +22,6 @@ import javax.crypto.SecretKey;
 public class JWTProvider {
     private final SecretKey SECRET_KEY ;
     public JWTProvider() {
-        // Genera una clave segura de 512 bits para HS512
         this.SECRET_KEY = Keys.secretKeyFor(SignatureAlgorithm.HS512);
     }
     public String generateToken(String username, List<SimpleGrantedAuthority> authorities) {
@@ -31,8 +30,7 @@ public class JWTProvider {
 
         return Jwts.builder()
                 .setSubject(username)
-                .claim("roles", authorities)  // Agrega los roles del usuario al token
-
+                .claim("roles", authorities)
                 .setIssuedAt(now)
                 .setExpiration(expirationDate)
                 .signWith(SignatureAlgorithm.HS512, SECRET_KEY)
@@ -59,7 +57,7 @@ public class JWTProvider {
 
     public Authentication getAuthentication(String token) {
         String username = getUsernameFromToken(token);
-        List<SimpleGrantedAuthority> authorities = extractRolesFromToken(token);  // Método para extraer roles del token
+        List<SimpleGrantedAuthority> authorities = extractRolesFromToken(token);
         return new UsernamePasswordAuthenticationToken(username, null, authorities);
     }
 
@@ -71,7 +69,6 @@ public class JWTProvider {
 
         List<Map<String, String>> roles = (List<Map<String, String>>) claims.get("roles");
 
-        // Mapea los roles del token a SimpleGrantedAuthority
         return roles.stream()
                 .map(role -> new SimpleGrantedAuthority(role.get("authority")))
                 .collect(Collectors.toList());

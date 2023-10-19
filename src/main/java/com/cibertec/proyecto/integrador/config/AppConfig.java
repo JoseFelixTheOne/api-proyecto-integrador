@@ -25,7 +25,7 @@ public class AppConfig {
         FilterRegistrationBean<JwtAuthenticationFilter> filterRegistrationBean = new FilterRegistrationBean<>();
         filterRegistrationBean.setOrder(Ordered.HIGHEST_PRECEDENCE);
         filterRegistrationBean.setFilter(new JwtAuthenticationFilter(jwtProvider));
-        filterRegistrationBean.addUrlPatterns("/api/*"); // Define aquí los patrones de URL que deben pasar por el filtro
+        filterRegistrationBean.addUrlPatterns("/api/*");
         return filterRegistrationBean;
     }
 
