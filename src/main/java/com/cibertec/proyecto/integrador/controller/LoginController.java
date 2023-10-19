@@ -77,5 +77,24 @@ public class LoginController {
         }
     }
 
+    @GetMapping("/usuario/{username}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> obtenerUsuarioPorUsername(@PathVariable String username, @RequestHeader("Authorization") String token) {
+        if (jwtProvider.validateToken(token.replace("Bearer ", ""))) {
+            Usuario usuarioEncontrado = servicio.obtenerUsuarioPorUsername(username);
+            if (usuarioEncontrado != null) {
+                return ResponseEntity.ok(usuarioEncontrado);
+            } else {
+                ErrorResponse errorResponse = new ErrorResponse("Usuario no encontrado");
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
+            }
+        } else {
+            ErrorResponse errorResponse = new ErrorResponse("Token no válido");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
+        }
+    }
+
+
+
 
 }

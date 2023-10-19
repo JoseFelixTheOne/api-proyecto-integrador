@@ -56,6 +56,10 @@ public class Usuario {
         this.role = role;
     }
 
+
+    // Constructor sin argumentos
+    public Usuario() {
+    }
     // Constructor
     public Usuario(int id, String username, String email, String document, int role) {
         this.id = id;
