@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/orders")
+@RequestMapping("/orders")
 public class OrderController {
     private final OrderService orderService;
 
@@ -19,7 +19,7 @@ public class OrderController {
         this.orderService = orderService;
     }
 
-    @PostMapping
+    @PostMapping("/shopping-cart")
     public ResponseEntity<?> createOrderWithDetails(@RequestBody Order order) {
         List<OrderDetailEntity> orderDetails = order.getOrderDetails();
 
@@ -27,9 +27,19 @@ public class OrderController {
             return ResponseEntity.badRequest().body("La orden debe tener al menos un detalle.");
         }
 
-        Order createdOrder = orderService.createOrder(order, orderDetails);
+        Order createdOrder = orderService.shoppingCart(order, orderDetails);
 
         return ResponseEntity.ok(createdOrder);
+    }
+    @GetMapping("/shopping-cart/{userId}")
+    public ResponseEntity<?> getLastShoppingCart(@PathVariable Integer userId) {
+        Order lastShoppingCart = orderService.getLastShoppingCart(userId);
+
+        if (lastShoppingCart == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        return ResponseEntity.ok(lastShoppingCart);
     }
 }
 
