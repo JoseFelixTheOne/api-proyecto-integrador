@@ -3,6 +3,8 @@ package com.cibertec.proyecto.integrador.services;
 import com.cibertec.proyecto.integrador.entity.Usuario;
 import com.cibertec.proyecto.integrador.generic.Cifrado;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import java.nio.charset.StandardCharsets;
@@ -43,6 +45,17 @@ public class LoginService {
             return usuarioEncontrado;
         } catch (Exception e) {
 
+            return null;
+        }
+    }
+
+
+    public Usuario obtenerUsuarioPorUsername(String username) {
+        String consultaSql = "SELECT * FROM users WHERE username = ?";
+        try {
+            return jdbcTemplate.queryForObject(consultaSql, new Object[]{username},
+                    new BeanPropertyRowMapper<>(Usuario.class));
+        } catch (EmptyResultDataAccessException e) {
             return null;
         }
     }
