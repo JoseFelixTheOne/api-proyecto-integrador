@@ -31,6 +31,7 @@ public class OrderController {
 
         return ResponseEntity.ok(createdOrder);
     }
+
     @GetMapping("/shopping-cart/{userId}")
     public ResponseEntity<?> getLastShoppingCart(@PathVariable Integer userId) {
         Order lastShoppingCart = orderService.getLastShoppingCart(userId);
@@ -41,5 +42,32 @@ public class OrderController {
 
         return ResponseEntity.ok(lastShoppingCart);
     }
-}
 
+    @PutMapping("/shopping-cart/add-details/{orderId}")
+    public ResponseEntity<?> addToShoppingCart(@PathVariable Integer orderId, @RequestBody List<OrderDetailEntity> addedDetails) {
+        Order order = new Order();
+        order.setId(orderId);
+
+        Order updatedOrder = orderService.addToShoppingCart(order, addedDetails);
+
+        if (updatedOrder == null) {
+            return ResponseEntity.badRequest().body("No se pudo agregar los detalles a la orden de compra.");
+        }
+
+        return ResponseEntity.ok(updatedOrder);
+    }
+
+    @PutMapping("/shopping-cart/remove-details/{orderId}")
+    public ResponseEntity<?> removeFromShoppingCart(@PathVariable Integer orderId, @RequestBody List<Integer> removedDetailIds) {
+        Order order = new Order();
+        order.setId(orderId);
+
+        Order updatedOrder = orderService.removeFromShoppingCart(order, removedDetailIds);
+
+        if (updatedOrder == null) {
+            return ResponseEntity.badRequest().body("No se pudieron eliminar los detalles de la orden de compra.");
+        }
+
+        return ResponseEntity.ok(updatedOrder);
+    }
+}
