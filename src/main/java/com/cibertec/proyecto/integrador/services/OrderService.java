@@ -8,5 +8,7 @@ import java.util.List;
 public interface OrderService {
     Order shoppingCart(Order order, List<OrderDetailEntity> orderDetails);
     Order getLastShoppingCart(Integer userId);
+    Order addToShoppingCart(Order order, List<OrderDetailEntity> addedDetails);
+    Order removeFromShoppingCart(Order order, List<Integer> removedDetailIds);
 }
 
