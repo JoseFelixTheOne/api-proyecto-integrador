@@ -20,6 +20,24 @@ public class UsuarioService {
     }
 
     public int insertarUsuario(Usuario usuario) {
+
+        String emailMinusculas = usuario.getEmail().trim().toLowerCase();
+        String usernameMinusculas = usuario.getUsername().trim().toLowerCase();
+
+        String consultaCorreoExistente = "SELECT COUNT(*) FROM users WHERE LOWER(email) = ?";
+        int count = jdbcTemplate.queryForObject(consultaCorreoExistente, Integer.class, emailMinusculas);
+
+        if (count > 0) {
+            return -1;
+        }
+
+        String consultaUsernameExistente = "SELECT COUNT(*) FROM users WHERE LOWER(username) = ?";
+        int countUsername = jdbcTemplate.queryForObject(consultaUsernameExistente, Integer.class, usernameMinusculas);
+
+        if (countUsername > 0) {
+            return -2;
+        }
+
         String contracifrada= Cifrado.cifrarCadena(usuario.getPassword());
         String consultaSql = "INSERT INTO users (username, email, password, document, role) VALUES (?, ?, ?, ?, ?)";
         int filasAfectadas= jdbcTemplate.update(consultaSql, usuario.getUsername(), usuario.getEmail(), contracifrada, usuario.getDocument(), usuario.getRole());
