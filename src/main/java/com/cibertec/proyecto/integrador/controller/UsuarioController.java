@@ -38,4 +38,16 @@ public class UsuarioController {
         }
     }
 
+
+    @PostMapping("/usuariocreate")
+    public ResponseEntity<String> crearUsuarioSinToken(@RequestBody Usuario usuario) {
+            int filasAfectadas = servicio.insertarUsuario(usuario);
+            if (filasAfectadas == 1) {
+                return ResponseEntity.status(HttpStatus.CREATED).body("Usuario creado exitosamente");
+            } else {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al crear el usuario");
+            }
+
+    }
+
 }
