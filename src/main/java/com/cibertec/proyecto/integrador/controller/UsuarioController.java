@@ -33,7 +33,11 @@ public class UsuarioController {
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Ya existe el correo en la base de datos");
             }else if(filasAfectadas==-2) {
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Ya existe el nombre del usuario en la base de datos");
-            } else {
+            }
+            else if(filasAfectadas==-3) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("El formato del correo no es válido");
+            }
+            else {
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al crear el usuario");
             }
         } else {
@@ -52,7 +56,11 @@ public class UsuarioController {
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Ya existe el correo en la base de datos");
             }else if(filasAfectadas==-2) {
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Ya existe el nombre del usuario en la base de datos");
-            }else{
+            }
+            else if(filasAfectadas==-3) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("El formato del correo no es válido");
+            }
+            else{
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al crear el usuario");
             }
 

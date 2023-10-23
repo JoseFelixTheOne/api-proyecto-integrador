@@ -8,6 +8,9 @@ import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 @Service
 public class UsuarioService {
 
@@ -23,6 +26,14 @@ public class UsuarioService {
 
         String emailMinusculas = usuario.getEmail().trim().toLowerCase();
         String usernameMinusculas = usuario.getUsername().trim().toLowerCase();
+
+        String regex = "^[A-Za-z0-9_.]+@[A-Za-z0-9-]+(\\.[A-Za-z]{2,})+$";
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(emailMinusculas);
+
+        if (!matcher.matches()) {
+            return -3;
+        }
 
         String consultaCorreoExistente = "SELECT COUNT(*) FROM users WHERE LOWER(email) = ?";
         int count = jdbcTemplate.queryForObject(consultaCorreoExistente, Integer.class, emailMinusculas);
