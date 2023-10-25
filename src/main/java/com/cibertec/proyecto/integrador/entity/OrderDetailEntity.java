@@ -33,6 +33,7 @@ public class OrderDetailEntity {
     @Column(name = "endtime")
     @Temporal(TemporalType.DATE)
     private Date endtime;
+    private Boolean deleted;
 
     @ManyToOne
     @JoinColumn(name = "orderid", insertable = false, updatable = false)
