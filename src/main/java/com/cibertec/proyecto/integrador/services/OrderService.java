@@ -10,5 +10,9 @@ public interface OrderService {
     Order getLastShoppingCart(Integer userId);
     Order addToShoppingCart(Order order, List<OrderDetailEntity> addedDetails);
     Order removeFromShoppingCart(Order order, List<Integer> removedDetailIds);
+    Order changeToOrder(Integer orderId);
+    Order addToOrder(Order order, List<OrderDetailEntity> addedDetails);
+    Order removeFromOrder(Order order, List<Integer> removedDetailIds);
+    Order backToShoppingCart(Integer orderId);
 }
 
