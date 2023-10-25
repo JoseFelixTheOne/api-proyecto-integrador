@@ -29,13 +29,41 @@ public class UsuarioController {
             int filasAfectadas = servicio.insertarUsuario(usuario);
             if (filasAfectadas == 1) {
                 return ResponseEntity.status(HttpStatus.CREATED).body("Usuario creado exitosamente");
-            } else {
+            }else if(filasAfectadas==-1) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Ya existe el correo en la base de datos");
+            }else if(filasAfectadas==-2) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Ya existe el nombre del usuario en la base de datos");
+            }
+            else if(filasAfectadas==-3) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("El formato del correo no es válido");
+            }
+            else {
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al crear el usuario");
             }
         } else {
             // El token no es válido, maneja el error adecuadamente
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token inválido");
         }
+    }
+
+
+    @PostMapping("/usuariocreate")
+    public ResponseEntity<String> crearUsuarioSinToken(@RequestBody Usuario usuario) {
+            int filasAfectadas = servicio.insertarUsuario(usuario);
+            if (filasAfectadas == 1) {
+                return ResponseEntity.status(HttpStatus.CREATED).body("Usuario creado exitosamente");
+            } else if(filasAfectadas==-1) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Ya existe el correo en la base de datos");
+            }else if(filasAfectadas==-2) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Ya existe el nombre del usuario en la base de datos");
+            }
+            else if(filasAfectadas==-3) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("El formato del correo no es válido");
+            }
+            else{
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al crear el usuario");
+            }
+
     }
 
 }
