@@ -76,6 +76,14 @@ public class LoginController {
         }
     }
 
+    @GetMapping("/token")
+    public ResponseEntity<?> obtenertoken() {
+        List<SimpleGrantedAuthority> authorities = Arrays.asList(new SimpleGrantedAuthority("ADMIN"));
+        String token = jwtProvider
+                .generateToken("whithoutuser", authorities);
+        return ResponseEntity.ok(new JwtResponse(token));
+    }
+
     @GetMapping("/usuario/{username}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> obtenerUsuarioPorUsername(@PathVariable String username, @RequestHeader("Authorization") String token) {

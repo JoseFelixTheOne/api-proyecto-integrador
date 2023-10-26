@@ -1,0 +1,58 @@
+2023-10-25T19:47:17.606-05:00  INFO 23512 --- [restartedMain] c.c.p.i.ProyectoIntegradorApplication    : Starting ProyectoIntegradorApplication using Java 17.0.8.1 with PID 23512 (C:\Users\USUARIO\Desktop\Proyecto Integrador\api-proyecto-integrador\build\classes\java\main started by USUARIO in C:\Users\USUARIO\Desktop\Proyecto Integrador\api-proyecto-integrador)
+2023-10-25T19:47:17.613-05:00  INFO 23512 --- [restartedMain] c.c.p.i.ProyectoIntegradorApplication    : No active profile set, falling back to 1 default profile: "default"
+2023-10-25T19:47:17.714-05:00  INFO 23512 --- [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+2023-10-25T19:47:17.715-05:00  INFO 23512 --- [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+2023-10-25T19:47:18.490-05:00  INFO 23512 --- [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2023-10-25T19:47:18.600-05:00  INFO 23512 --- [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 98 ms. Found 5 JPA repository interfaces.
+2023-10-25T19:47:19.464-05:00  INFO 23512 --- [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port(s): 8080 (http)
+2023-10-25T19:47:19.477-05:00  INFO 23512 --- [restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2023-10-25T19:47:19.478-05:00  INFO 23512 --- [restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.13]
+2023-10-25T19:47:19.575-05:00  INFO 23512 --- [restartedMain] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2023-10-25T19:47:19.575-05:00  INFO 23512 --- [restartedMain] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 1859 ms
+2023-10-25T19:47:19.764-05:00  INFO 23512 --- [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2023-10-25T19:47:20.009-05:00  INFO 23512 --- [restartedMain] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@5159fc1d
+2023-10-25T19:47:20.011-05:00  INFO 23512 --- [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2023-10-25T19:47:20.063-05:00  INFO 23512 --- [restartedMain] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2023-10-25T19:47:20.148-05:00  INFO 23512 --- [restartedMain] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.2.9.Final
+2023-10-25T19:47:20.151-05:00  INFO 23512 --- [restartedMain] org.hibernate.cfg.Environment            : HHH000406: Using bytecode reflection optimizer
+2023-10-25T19:47:20.324-05:00  INFO 23512 --- [restartedMain] o.h.b.i.BytecodeProviderInitiator        : HHH000021: Bytecode provider name : bytebuddy
+2023-10-25T19:47:20.505-05:00  INFO 23512 --- [restartedMain] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2023-10-25T19:47:20.914-05:00  INFO 23512 --- [restartedMain] o.h.b.i.BytecodeProviderInitiator        : HHH000021: Bytecode provider name : bytebuddy
+2023-10-25T19:47:21.703-05:00  INFO 23512 --- [restartedMain] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000490: Using JtaPlatform implementation: [org.hibernate.engine.transaction.jta.platform.internal.NoJtaPlatform]
+2023-10-25T19:47:21.706-05:00  INFO 23512 --- [restartedMain] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2023-10-25T19:47:22.389-05:00  WARN 23512 --- [restartedMain] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2023-10-25T19:47:22.870-05:00  INFO 23512 --- [restartedMain] o.s.b.d.a.OptionalLiveReloadServer       : LiveReload server is running on port 35729
+2023-10-25T19:47:22.965-05:00  INFO 23512 --- [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port(s): 8080 (http) with context path ''
+2023-10-25T19:47:22.976-05:00  INFO 23512 --- [restartedMain] c.c.p.i.ProyectoIntegradorApplication    : Started ProyectoIntegradorApplication in 6.043 seconds (process running for 6.986)
+2023-10-25T19:52:36.447-05:00  INFO 23512 --- [http-nio-8080-exec-2] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2023-10-25T19:52:36.449-05:00  INFO 23512 --- [http-nio-8080-exec-2] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2023-10-25T19:52:36.451-05:00  INFO 23512 --- [http-nio-8080-exec-2] o.s.web.servlet.DispatcherServlet        : Completed initialization in 2 ms
+2023-10-25T20:05:15.308-05:00  INFO 24732 --- [restartedMain] c.c.p.i.ProyectoIntegradorApplication    : Starting ProyectoIntegradorApplication using Java 17.0.8.1 with PID 24732 (C:\Users\USUARIO\Desktop\Proyecto Integrador\api-proyecto-integrador\build\classes\java\main started by USUARIO in C:\Users\USUARIO\Desktop\Proyecto Integrador\api-proyecto-integrador)
+2023-10-25T20:05:15.312-05:00  INFO 24732 --- [restartedMain] c.c.p.i.ProyectoIntegradorApplication    : No active profile set, falling back to 1 default profile: "default"
+2023-10-25T20:05:15.371-05:00  INFO 24732 --- [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+2023-10-25T20:05:15.371-05:00  INFO 24732 --- [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+2023-10-25T20:05:16.360-05:00  INFO 24732 --- [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2023-10-25T20:05:16.463-05:00  INFO 24732 --- [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 93 ms. Found 5 JPA repository interfaces.
+2023-10-25T20:05:17.374-05:00  INFO 24732 --- [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port(s): 8080 (http)
+2023-10-25T20:05:17.386-05:00  INFO 24732 --- [restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2023-10-25T20:05:17.387-05:00  INFO 24732 --- [restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.13]
+2023-10-25T20:05:17.475-05:00  INFO 24732 --- [restartedMain] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2023-10-25T20:05:17.475-05:00  INFO 24732 --- [restartedMain] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 2102 ms
+2023-10-25T20:05:17.650-05:00  INFO 24732 --- [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2023-10-25T20:05:17.837-05:00  INFO 24732 --- [restartedMain] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@77c8dfb2
+2023-10-25T20:05:17.839-05:00  INFO 24732 --- [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2023-10-25T20:05:17.884-05:00  INFO 24732 --- [restartedMain] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2023-10-25T20:05:17.933-05:00  INFO 24732 --- [restartedMain] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.2.9.Final
+2023-10-25T20:05:17.935-05:00  INFO 24732 --- [restartedMain] org.hibernate.cfg.Environment            : HHH000406: Using bytecode reflection optimizer
+2023-10-25T20:05:18.087-05:00  INFO 24732 --- [restartedMain] o.h.b.i.BytecodeProviderInitiator        : HHH000021: Bytecode provider name : bytebuddy
+2023-10-25T20:05:18.224-05:00  INFO 24732 --- [restartedMain] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2023-10-25T20:05:18.565-05:00  INFO 24732 --- [restartedMain] o.h.b.i.BytecodeProviderInitiator        : HHH000021: Bytecode provider name : bytebuddy
+2023-10-25T20:05:19.249-05:00  INFO 24732 --- [restartedMain] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000490: Using JtaPlatform implementation: [org.hibernate.engine.transaction.jta.platform.internal.NoJtaPlatform]
+2023-10-25T20:05:19.253-05:00  INFO 24732 --- [restartedMain] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2023-10-25T20:05:19.827-05:00  WARN 24732 --- [restartedMain] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2023-10-25T20:05:20.209-05:00  INFO 24732 --- [restartedMain] o.s.b.d.a.OptionalLiveReloadServer       : LiveReload server is running on port 35729
+2023-10-25T20:05:20.242-05:00  INFO 24732 --- [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port(s): 8080 (http) with context path ''
+2023-10-25T20:05:20.254-05:00  INFO 24732 --- [restartedMain] c.c.p.i.ProyectoIntegradorApplication    : Started ProyectoIntegradorApplication in 5.368 seconds (process running for 5.812)
+2023-10-25T20:05:48.766-05:00  INFO 24732 --- [http-nio-8080-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2023-10-25T20:05:48.767-05:00  INFO 24732 --- [http-nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2023-10-25T20:05:48.769-05:00  INFO 24732 --- [http-nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 1 ms
