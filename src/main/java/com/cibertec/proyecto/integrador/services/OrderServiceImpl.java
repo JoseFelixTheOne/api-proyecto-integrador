@@ -309,6 +309,30 @@ public class OrderServiceImpl implements OrderService {
         }
     }
 
+    @Override
+    @Transactional
+    public Order changeToBooked(Integer orderId) {
+        try {
+            if (orderId == null){
+                throw new IllegalArgumentException("La id de la orden es nulo");
+            }
+            Order existingOrder = getOrderById(orderId);
+
+            if (existingOrder == null || !existingOrder.getStatus().equals("ORDER") || !existingOrder.getActive() || existingOrder.getDeleted()) {
+                throw new IllegalArgumentException("La orden no existe, no está en estado 'SHOPPING CART', o está inactiva o eliminada.");
+            }
+
+            existingOrder.setStatus("BOOKED");
+
+            jdbcTemplate.update("UPDATE orders SET status = ? WHERE id = ?", existingOrder.getStatus(), existingOrder.getId());
+
+            return existingOrder;
+        } catch (Exception e) {
+            System.err.println("Error: " + e.getMessage());
+            return null;
+        }
+    }
+
     private Order getOrderById(Integer orderId) {
         String selectOrderByIdSQL =
                 "SELECT id, userId, total, timestamp, active, deleted, status, step " +
