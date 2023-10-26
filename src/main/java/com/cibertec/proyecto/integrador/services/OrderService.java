@@ -14,5 +14,6 @@ public interface OrderService {
     Order addToOrder(Order order, List<OrderDetailEntity> addedDetails);
     Order removeFromOrder(Order order, List<Integer> removedDetailIds);
     Order backToShoppingCart(Integer orderId);
+    Order changeToBooked(Integer orderId);
 }
 

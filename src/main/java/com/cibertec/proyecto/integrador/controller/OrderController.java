@@ -117,4 +117,16 @@ public class OrderController {
         }
         return ResponseEntity.ok(order);
     }
+    @PutMapping("/change-to-booked/{orderId}")
+    public ResponseEntity<?> changeToBooked(@PathVariable Integer orderId) {
+        try {
+            Order order = orderService.changeToBooked(orderId);
+            if (order == null) {
+                return ResponseEntity.badRequest().body("No se pudo actualizar el estado de la orden de compra.");
+            }
+            return ResponseEntity.ok(order);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
 }
