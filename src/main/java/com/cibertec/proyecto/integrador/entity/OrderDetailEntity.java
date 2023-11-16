@@ -1,10 +1,7 @@
 package com.cibertec.proyecto.integrador.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.AssertTrue;
-import jakarta.validation.constraints.FutureOrPresent;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.*;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -26,22 +23,22 @@ public class OrderDetailEntity {
     private int orderid;
     private BigDecimal subtotal;
     private BigDecimal price;
-    private double days;
+    @NotNull(message = "El campo 'days' no puede estar vacío")
+    private Double days;
     @NotNull(message = "El campor 'roomid' no puede estar vacío")
     private Integer roomid;
     @Column(name = "bookedtime")
-    @Temporal(TemporalType.DATE)
     private LocalDate bookedtime = LocalDate.now();
 
     @Column(name = "startedtime")
-    @Temporal(TemporalType.DATE)
     @FutureOrPresent(message = "'startedtime' debe ser una fecha mayor o igual a la actual")
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+    @NotNull(message = "El campo 'startedtime' no puede estar vacío")
     private LocalDate startedtime;
 
     @Column(name = "endtime")
-    @Temporal(TemporalType.DATE)
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+    @Future(message = "el campo 'endtime' debe ser una fecha mayor a la actual")
     private LocalDate endtime;
     private Boolean deleted = false;
 
@@ -53,8 +50,9 @@ public class OrderDetailEntity {
     @JoinColumn(name = "roomid", insertable = false, updatable = false)
     private RoomEntity room;
 
-    @AssertTrue(message = "La fecha 'endtime' debe ser mayor a 'startedtime'")
+    @AssertTrue(message = "La fecha 'endtime' debe ser mayor que 'startedtime'")
     public boolean isValidEndtime() {
-        return endtime == null || endtime.isAfter(startedtime);
+        return !endtime.isAfter(startedtime);
     }
+
 }
