@@ -25,7 +25,7 @@ public class RoomServiceImpl implements RoomService {
 
     @Override
     public List<RoomEntity> getRoomToName(String name) {
-        return roomRepository.getRoomByName(name);
+        return roomRepository.searchByNameContains(name);
     }
 
     @Override

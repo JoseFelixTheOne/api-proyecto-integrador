@@ -5,13 +5,13 @@ import com.cibertec.proyecto.integrador.entity.OrderDetailEntity;
 import com.cibertec.proyecto.integrador.repository.OrderDetailRepository;
 import com.cibertec.proyecto.integrador.repository.OrderRepository;
 import com.cibertec.proyecto.integrador.repository.RoomRepository;
+import lombok.AllArgsConstructor;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -19,7 +19,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
 
 @Service
 public class OrderServiceImpl implements OrderService {
