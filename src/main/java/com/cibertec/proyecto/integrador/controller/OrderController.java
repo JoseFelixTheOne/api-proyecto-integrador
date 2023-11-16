@@ -3,6 +3,7 @@ package com.cibertec.proyecto.integrador.controller;
 import com.cibertec.proyecto.integrador.entity.Order;
 import com.cibertec.proyecto.integrador.entity.OrderDetailEntity;
 import com.cibertec.proyecto.integrador.services.OrderService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,19 +22,10 @@ public class OrderController {
     }
 
     @PostMapping("/shopping-cart")
-    public ResponseEntity<?> createOrderWithDetails(@RequestBody Order order) {
+    public ResponseEntity<?> createOrderWithDetails(@Valid @RequestBody Order order) {
         List<OrderDetailEntity> orderDetails = order.getOrderDetails();
-
-        if (orderDetails == null || orderDetails.isEmpty()) {
-            return ResponseEntity.badRequest().body("La orden debe tener al menos un detalle.");
-        }
-
-        try {
-            Order createdOrder = orderService.shoppingCart(order, orderDetails);
-            return ResponseEntity.ok(createdOrder);
-        } catch (ResponseStatusException ex) {
-            return ResponseEntity.status(ex.getStatusCode()).body(ex.getReason());
-        }
+        Order createdOrder = orderService.shoppingCart(order, orderDetails);
+        return ResponseEntity.ok(createdOrder);
     }
 
     @GetMapping("/shopping-cart/{userId}")
