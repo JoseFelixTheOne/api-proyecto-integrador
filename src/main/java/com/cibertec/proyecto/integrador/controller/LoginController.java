@@ -1,8 +1,6 @@
 package com.cibertec.proyecto.integrador.controller;
 import com.cibertec.proyecto.integrador.config.JWTProvider;
-import com.cibertec.proyecto.integrador.entity.ErrorResponse;
-import com.cibertec.proyecto.integrador.entity.JwtResponse;
-import com.cibertec.proyecto.integrador.entity.Usuario;
+import com.cibertec.proyecto.integrador.entity.*;
 import com.cibertec.proyecto.integrador.services.LoginService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -16,7 +14,7 @@ import java.util.List;
 
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/login")
 public class LoginController {
 
     private final LoginService servicio;
@@ -29,77 +27,27 @@ public class LoginController {
         this.jwtProvider=jwtProvider;
     }
 
-    @GetMapping("/login/{usuario}/{contra}")
-    public int obtenerContador(@PathVariable String usuario, @PathVariable  String contra)
-    {
-        int exito= servicio.login(usuario,contra);
-        return exito;
-    }
 
-    @GetMapping("/verificar/{token}")
-    public ResponseEntity<String> tuMetodo(@PathVariable String token) {
-        if (jwtProvider.validateToken(token.replace("Bearer ", ""))) {
-            return ResponseEntity.ok("Token válido");
-        } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token inválido");
-        }
-    }
 
-    @GetMapping("/loginuser/{usuario}/{contra}")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> login(@PathVariable String usuario, @PathVariable String contra, @RequestHeader("Authorization") String token) {
-        if (jwtProvider.validateToken(token.replace("Bearer ", ""))) {
-            Usuario usuarioEncontrado = servicio.loginUsuario(usuario, contra);
-            if (usuarioEncontrado != null) {
-                return ResponseEntity.ok(usuarioEncontrado);
-            } else {
-                ErrorResponse errorResponse = new ErrorResponse("Credenciales incorrectas");
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
-            }
-        } else {
-            ErrorResponse errorResponse = new ErrorResponse("Token no válido");
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
-        }
-    }
 
-    @GetMapping("/loginusertoken/{usuario}/{contra}")
-    public ResponseEntity<?> loginusertoken(@PathVariable String usuario, @PathVariable String contra) {
-        Usuario usuarioEncontrado = servicio.loginUsuario(usuario, contra);
+
+
+
+    @PostMapping
+    public ResponseEntity<?> loginusertoken(@RequestBody Login login) {
+        Usuario usuarioEncontrado = servicio.loginUsuario(login.getEmail(), login.getPassword());
         if (usuarioEncontrado != null) {
             List<SimpleGrantedAuthority> authorities = Arrays.asList(new SimpleGrantedAuthority("ADMIN"));
-            String token = jwtProvider
-                    .generateToken(usuarioEncontrado.getUsername(), authorities);
-            return ResponseEntity.ok(new JwtResponse(token));
+            String token = jwtProvider.generateToken(usuarioEncontrado.getUsername(), authorities);
+            User ousu = servicio.obtenerUsuarioPorEmail(login.getEmail());
+            ousu.setToken(token);
+            return ResponseEntity.ok(ousu);
         } else {
             ErrorResponse errorResponse = new ErrorResponse("Credenciales incorrectas");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
         }
     }
 
-    @GetMapping("/token")
-    public ResponseEntity<?> obtenertoken() {
-        List<SimpleGrantedAuthority> authorities = Arrays.asList(new SimpleGrantedAuthority("ADMIN"));
-        String token = jwtProvider
-                .generateToken("whithoutuser", authorities);
-        return ResponseEntity.ok(new JwtResponse(token));
-    }
-
-    @GetMapping("/usuario/{username}")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> obtenerUsuarioPorUsername(@PathVariable String username, @RequestHeader("Authorization") String token) {
-        if (jwtProvider.validateToken(token.replace("Bearer ", ""))) {
-            Usuario usuarioEncontrado = servicio.obtenerUsuarioPorUsername(username);
-            if (usuarioEncontrado != null) {
-                return ResponseEntity.ok(usuarioEncontrado);
-            } else {
-                ErrorResponse errorResponse = new ErrorResponse("Usuario no encontrado");
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
-            }
-        } else {
-            ErrorResponse errorResponse = new ErrorResponse("Token no válido");
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
-        }
-    }
 
 
 
