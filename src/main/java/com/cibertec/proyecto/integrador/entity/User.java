@@ -1,19 +1,15 @@
 package com.cibertec.proyecto.integrador.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+public class User {
 
-@Entity
-@Table(name = "users")
-public class Usuario {
-    @Id
     private int id;
     private String username;
     private String email;
     private String password;
     private String document;
     private int role;
+    private String token;
+
     public int getId() {
         return id;
     }
@@ -62,17 +58,11 @@ public class Usuario {
         this.role = role;
     }
 
-
-    // Constructor sin argumentos
-    public Usuario() {
-    }
-    // Constructor
-    public Usuario(int id, String username, String email, String document, int role) {
-        this.id = id;
-        this.username = username;
-        this.email = email;
-        this.document = document;
-        this.role = role;
+    public String getToken() {
+        return token;
     }
 
+    public void setToken(String token) {
+        this.token = token;
+    }
 }
