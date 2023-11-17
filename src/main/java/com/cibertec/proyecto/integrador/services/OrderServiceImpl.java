@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -19,7 +18,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
 
 @Service
 public class OrderServiceImpl implements OrderService {
@@ -43,19 +41,11 @@ public class OrderServiceImpl implements OrderService {
     @Transactional
     public Order shoppingCart(Order order, List<OrderDetailEntity> orderDetails) {
         try {
-            LocalDateTime currentDateTime = LocalDateTime.now();
-            order.setTimestamp(currentDateTime);
-            order.setStatus("SHOPPING CART");
-
-            if (order.getUserid() == null) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El campo 'userId' es requerido.");
-            }
-            if (order.getTotal() == null) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El campo 'total' es requerido.");
-            }
+            order.setTimestamp(LocalDateTime.now());
+            order.setTotal(calculateTotal(orderDetails));
 
             jdbcTemplate.update("INSERT INTO orders (userId, total, timestamp, active, deleted, status, step) VALUES (?, ?, ?, ?, ?, ?, ?)",
-                    order.getUserid(), order.getTotal(), currentDateTime, order.getActive(), order.getDeleted(), order.getStatus(), order.getStep());
+                    order.getUserid(), order.getTotal(), order.getTimestamp(), order.getActive(), order.getDeleted(), order.getStatus(), order.getStep());
 
             String selectLastOrderIdSQL = "SELECT MAX(id) FROM orders WHERE userId = ?";
             Integer orderId = jdbcTemplate.queryForObject(selectLastOrderIdSQL, Integer.class, order.getUserid());
@@ -67,19 +57,16 @@ public class OrderServiceImpl implements OrderService {
                 detail.setOrderid(order.getId());
                 detail.setDeleted(false);
 
-                if (detail.getStartedtime() == null) {
-                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El campo 'startedtime' es requerido.");
-                }
-                if (detail.getEndtime() == null) {
-                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El campo 'endtime' es requerido.");
-                }
-
                 jdbcTemplate.update("INSERT INTO order_detail (id, orderId, subtotal, price, days, roomId, bookedTime, startedTime, endTime, deleted) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                         detail.getId(), detail.getOrderid(), detail.getSubtotal(), detail.getPrice(), detail.getDays(), detail.getRoomid(), detail.getBookedtime(), detail.getStartedtime(), detail.getEndtime(), detail.getDeleted());
             }
 
             return order;
-        } catch (Exception e) {
+        } catch (ResponseStatusException e) {
+            System.err.println("Error " + e.getMessage());
+            throw new ResponseStatusException(e.getStatusCode(), e.getReason());
+        }
+        catch (Exception e) {
             System.err.println("Error " + e.getMessage());
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Se produjo un error al procesar la solicitud.");
         }
@@ -117,6 +104,7 @@ public class OrderServiceImpl implements OrderService {
     public Order addToShoppingCart(Order order, List<OrderDetailEntity> addedDetails) {
         try {
             Order existingOrder = getOrderById(order.getId());
+
 
             if (existingOrder == null || !existingOrder.getStatus().equals("SHOPPING CART") || !existingOrder.getActive() || existingOrder.getDeleted()) {
                 throw new IllegalArgumentException("La orden no existe, no está en estado 'SHOPPING CART', o está inactiva o eliminada.");
@@ -377,9 +365,9 @@ public class OrderServiceImpl implements OrderService {
             detail.setPrice(rs.getBigDecimal("price"));
             detail.setDays(rs.getDouble("days"));
             detail.setRoomid(rs.getInt("roomId"));
-            detail.setBookedtime(rs.getTimestamp("bookedTime"));
-            detail.setStartedtime(rs.getTimestamp("startedTime") != null ? rs.getTimestamp("startedTime") : null);
-            detail.setEndtime(rs.getTimestamp("endTime") != null ? rs.getTimestamp("endTime") : null);
+            detail.setBookedtime(rs.getTimestamp("bookedTime").toLocalDateTime().toLocalDate());
+            detail.setStartedtime(rs.getTimestamp("startedTime") != null ? rs.getTimestamp("startedTime").toLocalDateTime().toLocalDate() : null);
+            detail.setEndtime(rs.getTimestamp("endTime") != null ? rs.getTimestamp("endTime").toLocalDateTime().toLocalDate() : null);
             detail.setDeleted(rs.getBoolean("deleted"));
             detail.setOrderid(orderId);
             return detail;
@@ -400,9 +388,9 @@ public class OrderServiceImpl implements OrderService {
             detail.setPrice(rs.getBigDecimal("price"));
             detail.setDays(rs.getDouble("days"));
             detail.setRoomid(rs.getInt("roomId"));
-            detail.setBookedtime(rs.getTimestamp("bookedTime"));
-            detail.setStartedtime(rs.getTimestamp("startedTime") != null ? rs.getTimestamp("startedTime") : null);
-            detail.setEndtime(rs.getTimestamp("endTime") != null ? rs.getTimestamp("endTime") : null);
+            detail.setBookedtime(rs.getTimestamp("bookedTime").toLocalDateTime().toLocalDate());
+            detail.setStartedtime(rs.getTimestamp("startedTime") != null ? rs.getTimestamp("startedTime").toLocalDateTime().toLocalDate() : null);
+            detail.setEndtime(rs.getTimestamp("endTime") != null ? rs.getTimestamp("endTime").toLocalDateTime().toLocalDate() : null);
             detail.setDeleted(rs.getBoolean("deleted"));
             detail.setOrderid(orderId);
             return detail;

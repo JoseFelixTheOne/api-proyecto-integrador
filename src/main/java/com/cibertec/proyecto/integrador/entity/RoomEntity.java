@@ -22,8 +22,4 @@ public class RoomEntity {
     private boolean active = true;
     private boolean deleted = false;
 
-    @OneToMany(mappedBy = "room", fetch = FetchType.LAZY)
-    private List<OrderDetailEntity> orderDetails;
-
 }
-
