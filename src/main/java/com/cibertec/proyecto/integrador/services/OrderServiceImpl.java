@@ -63,41 +63,45 @@ public class OrderServiceImpl implements OrderService {
 
             return order;
         } catch (ResponseStatusException e) {
-            System.err.println("Error " + e.getMessage());
             throw new ResponseStatusException(e.getStatusCode(), e.getReason());
         }
         catch (Exception e) {
-            System.err.println("Error " + e.getMessage());
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Se produjo un error al procesar la solicitud.");
         }
     }
     @Override
     public Order getLastShoppingCart(Integer userId) {
-        String selectLastOrderSQL =
-                "SELECT id, userId, total, timestamp, active, deleted, status, step " +
-                        "FROM orders " +
-                        "WHERE userId = ? AND status = 'SHOPPING CART' " +
-                        "ORDER BY id DESC LIMIT 1";
+        try {
+            String selectLastOrderSQL =
+                    "SELECT id, userId, total, timestamp, active, deleted, status, step " +
+                            "FROM orders " +
+                            "WHERE userId = ? AND status = 'SHOPPING CART' " +
+                            "ORDER BY id DESC LIMIT 1";
 
-        Order order = jdbcTemplate.queryForObject(selectLastOrderSQL, new Object[]{userId}, (rs, rowNum) -> {
-            Order orderC = new Order();
-            orderC.setId(rs.getInt("id"));
-            orderC.setUserid(rs.getInt("userId"));
-            orderC.setTotal(rs.getBigDecimal("total"));
-            orderC.setTimestamp(rs.getTimestamp("timestamp").toLocalDateTime());
-            orderC.setActive(rs.getBoolean("active"));
-            orderC.setDeleted(rs.getBoolean("deleted"));
-            orderC.setStatus(rs.getString("status"));
-            orderC.setStep(rs.getString("step"));
-            return orderC;
-        });
+            Order order = jdbcTemplate.queryForObject(selectLastOrderSQL, new Object[]{userId}, (rs, rowNum) -> {
+                Order orderC = new Order();
+                orderC.setId(rs.getInt("id"));
+                orderC.setUserid(rs.getInt("userId"));
+                orderC.setTotal(rs.getBigDecimal("total"));
+                orderC.setTimestamp(rs.getTimestamp("timestamp").toLocalDateTime());
+                orderC.setActive(rs.getBoolean("active"));
+                orderC.setDeleted(rs.getBoolean("deleted"));
+                orderC.setStatus(rs.getString("status"));
+                orderC.setStep(rs.getString("step"));
+                return orderC;
+            });
 
-        if (order != null) {
             List<OrderDetailEntity> orderDetails = getOrderDetailsByOrderId(order.getId());
             order.setOrderDetails(orderDetails);
-        }
 
-        return order;
+            return order;
+        } catch (ResponseStatusException e) {
+            throw new ResponseStatusException(e.getStatusCode(), e.getReason());
+        } catch (NullPointerException ex) {
+            throw new NullPointerException();
+        } catch (Exception ex) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
+        }
     }
     @Override
     @Transactional
@@ -107,7 +111,7 @@ public class OrderServiceImpl implements OrderService {
 
 
             if (existingOrder == null || !existingOrder.getStatus().equals("SHOPPING CART") || !existingOrder.getActive() || existingOrder.getDeleted()) {
-                throw new IllegalArgumentException("La orden no existe, no está en estado 'SHOPPING CART', o está inactiva o eliminada.");
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND,"La orden no existe, no está en estado 'SHOPPING CART', o está inactiva o eliminada.");
             }
 
             int maxDetailId = getMaxOrderDetailId(existingOrder.getId());
@@ -117,11 +121,6 @@ public class OrderServiceImpl implements OrderService {
                 newDetail.setId(maxDetailId);
                 newDetail.setOrderid(existingOrder.getId());
                 newDetail.setDeleted(false);
-
-                if (newDetail.getStartedtime() == null || newDetail.getEndtime() == null) {
-                    throw new IllegalArgumentException("Los campos 'startedtime' y 'endtime' son requeridos para los nuevos detalles.");
-                }
-
                 jdbcTemplate.update("INSERT INTO order_detail (id, orderId, subtotal, price, days, roomId, bookedTime, startedTime, endTime, deleted) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                         newDetail.getId(), newDetail.getOrderid(), newDetail.getSubtotal(), newDetail.getPrice(), newDetail.getDays(),
                         newDetail.getRoomid(), newDetail.getBookedtime(), newDetail.getStartedtime(), newDetail.getEndtime(), newDetail.getDeleted());
@@ -136,9 +135,12 @@ public class OrderServiceImpl implements OrderService {
             jdbcTemplate.update("UPDATE orders SET total = ? WHERE id = ?", existingOrder.getTotal(), existingOrder.getId());
 
             return existingOrder;
-        } catch (Exception e) {
-            System.err.println("Error: " + e.getMessage());
-            return null;
+        } catch (ResponseStatusException e) {
+            throw new ResponseStatusException(e.getStatusCode(), e.getReason());
+        } catch (NullPointerException ex) {
+            throw new NullPointerException();
+        } catch (Exception ex) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
         }
     }
     @Override

@@ -27,12 +27,6 @@ public class LoginController {
         this.jwtProvider=jwtProvider;
     }
 
-
-
-
-
-
-
     @PostMapping
     public ResponseEntity<?> loginusertoken(@RequestBody Login login) {
         Usuario usuarioEncontrado = servicio.loginUsuario(login.getEmail(), login.getPassword());
@@ -47,9 +41,5 @@ public class LoginController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
         }
     }
-
-
-
-
 
 }

@@ -25,7 +25,8 @@ public class OrderDetailEntity {
     private BigDecimal price;
     @NotNull(message = "El campo 'days' no puede estar vacío")
     private Double days;
-    @NotNull(message = "El campor 'roomid' no puede estar vacío")
+    @NotNull(message = "El campo 'roomid' no puede estar vacío")
+    @Positive(message = "El campor 'roomid' debe ser positivo")
     private Integer roomid;
     @Column(name = "bookedtime")
     private LocalDate bookedtime = LocalDate.now();
@@ -49,10 +50,5 @@ public class OrderDetailEntity {
     @ManyToOne
     @JoinColumn(name = "roomid", insertable = false, updatable = false)
     private RoomEntity room;
-
-    @AssertTrue(message = "La fecha 'endtime' debe ser mayor que 'startedtime'")
-    public boolean isValidEndtime() {
-        return !endtime.isAfter(startedtime);
-    }
 
 }
