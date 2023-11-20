@@ -19,11 +19,18 @@ public class RoomEntity {
     private String name;
     private String description;
     private int floor;
-    private boolean active = true;
-    private boolean deleted = false;
+    private double price;
+    private boolean active;
+    private boolean deleted;
+    private int hotelid;
+//    private String image;
 
-    @OneToMany(mappedBy = "room", fetch = FetchType.LAZY)
-    private List<OrderDetailEntity> orderDetails;
+    @Lob
+    private byte[] image;
+
+
+//    @OneToMany(mappedBy = "room", fetch = FetchType.LAZY)
+//    private List<OrderDetailEntity> orderDetails;
 
 }
 
