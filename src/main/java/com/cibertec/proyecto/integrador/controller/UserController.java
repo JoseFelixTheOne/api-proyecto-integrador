@@ -27,8 +27,18 @@ public class UserController {
     }
 
     @GetMapping("")
-    public List<Usuario> listUsers(){
-        return userService.listUsers();
+    public ResponseEntity<List<Usuario>> listUsers(@RequestHeader("Authorization") String token) {
+        try {
+            if (jwtProvider.validateToken(token.replace("Bearer ", ""))) {
+                List<Usuario> users = userService.listUsers();
+                return ResponseEntity.ok(users);
+            } else {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+            }
+        } catch (Exception e) {
+            // Manejo de excepciones personalizado para token no válido
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+        }
     }
 
     @GetMapping("/{id}")
