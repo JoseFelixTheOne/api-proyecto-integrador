@@ -23,10 +23,9 @@ public class RoomEntity {
     private boolean active;
     private boolean deleted;
     private int hotelid;
-//    private String image;
+    private String image;
 
-    @Lob
-    private byte[] image;
+
 
 
 //    @OneToMany(mappedBy = "room", fetch = FetchType.LAZY)
