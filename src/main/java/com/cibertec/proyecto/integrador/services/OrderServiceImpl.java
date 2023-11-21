@@ -21,20 +21,13 @@ import java.time.LocalDateTime;
 
 @Service
 public class OrderServiceImpl implements OrderService {
-    private OrderRepository orderRepository;
-
-    private OrderDetailRepository orderDetailRepository;
     private final JdbcTemplate jdbcTemplate;
-    private final RoomRepository roomRepository;
     private int lastOrderDetailId = 0;
 
     @Autowired
     public OrderServiceImpl(JdbcTemplate jdbcTemplate, RoomRepository roomRepository, OrderRepository orderRepository,
                             OrderDetailRepository orderDetailRepository) {
         this.jdbcTemplate = jdbcTemplate;
-        this.roomRepository = roomRepository;
-        this.orderRepository = orderRepository;
-        this.orderDetailRepository = orderDetailRepository;
     }
 
     @Override
@@ -52,7 +45,7 @@ public class OrderServiceImpl implements OrderService {
             order.setId(orderId);
 
             for (OrderDetailEntity detail : orderDetails) {
-                int nextOrderDetailId = getNextOrderDetailId();
+                int nextOrderDetailId = getNextOrderDetailId(orderId);
                 detail.setId(nextOrderDetailId);
                 detail.setOrderid(order.getId());
                 detail.setDeleted(false);
@@ -114,10 +107,9 @@ public class OrderServiceImpl implements OrderService {
                 throw new ResponseStatusException(HttpStatus.NOT_FOUND,"La orden no existe, no está en estado 'SHOPPING CART', o está inactiva o eliminada.");
             }
 
-            int maxDetailId = getMaxOrderDetailId(existingOrder.getId());
+            int maxDetailId = getNextOrderDetailId(existingOrder.getId());
 
             for (OrderDetailEntity newDetail : addedDetails) {
-                maxDetailId++;
                 newDetail.setId(maxDetailId);
                 newDetail.setOrderid(existingOrder.getId());
                 newDetail.setDeleted(false);
@@ -206,17 +198,13 @@ public class OrderServiceImpl implements OrderService {
                 throw new IllegalArgumentException("La orden no existe, no está en estado 'ORDER', o está inactiva o eliminada.");
             }
 
-            int maxDetailId = getMaxOrderDetailId(existingOrder.getId());
+            int maxDetailId = getNextOrderDetailId(existingOrder.getId());
 
             for (OrderDetailEntity newDetail : addedDetails) {
-                maxDetailId++;
                 newDetail.setId(maxDetailId);
                 newDetail.setOrderid(existingOrder.getId());
                 newDetail.setDeleted(false);
 
-                if (newDetail.getStartedtime() == null || newDetail.getEndtime() == null) {
-                    throw new IllegalArgumentException("Los campos 'startedtime' y 'endtime' son requeridos para los nuevos detalles.");
-                }
 
                 jdbcTemplate.update("INSERT INTO order_detail (id, orderId, subtotal, price, days, roomId, bookedTime, startedTime, endTime, deleted) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                         newDetail.getId(), newDetail.getOrderid(), newDetail.getSubtotal(), newDetail.getPrice(), newDetail.getDays(),
@@ -354,6 +342,7 @@ public class OrderServiceImpl implements OrderService {
         }
     }
 
+
     private List<OrderDetailEntity> getOrderDetailsByOrderId(Integer orderId) {
         String selectOrderDetailsSQL =
                 "SELECT id, subtotal, price, days, roomId, bookedTime, startedTime, endTime, deleted " +
@@ -401,16 +390,6 @@ public class OrderServiceImpl implements OrderService {
         return orderDetails;
     }
 
-    private int getMaxOrderDetailId(Integer orderId) {
-        String selectMaxIdSQL = "SELECT MAX(id) FROM order_detail WHERE orderId = ?";
-        Integer maxId = jdbcTemplate.queryForObject(selectMaxIdSQL, new Object[]{orderId}, Integer.class);
-
-        if (maxId != null) {
-            return maxId + 1;
-        } else {
-            return 1;
-        }
-    }
 
     private BigDecimal calculateTotal(List<OrderDetailEntity> orderDetails) {
         BigDecimal total = BigDecimal.ZERO;
@@ -419,8 +398,15 @@ public class OrderServiceImpl implements OrderService {
         }
         return total;
     }
-    private int getNextOrderDetailId() {
-        lastOrderDetailId++;
-        return lastOrderDetailId;
+    private int getNextOrderDetailId(int orderId) {
+        String selectMaxOrderDetailIdSQL = "SELECT MAX(id) FROM order_detail WHERE orderId = ?";
+        Integer maxOrderDetailId = jdbcTemplate.queryForObject(selectMaxOrderDetailIdSQL, Integer.class, orderId);
+
+        if (maxOrderDetailId == null) {
+            return 1;
+        }
+
+        return maxOrderDetailId + 1;
     }
+
 }

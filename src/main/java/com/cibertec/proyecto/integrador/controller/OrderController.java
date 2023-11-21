@@ -35,85 +35,56 @@ public class OrderController {
     }
 
     @PutMapping("/shopping-cart/{orderId}/add-details")
-    public ResponseEntity<?> addToShoppingCart(@PathVariable Integer orderId, @RequestBody List<OrderDetailEntity> addedDetails) {
+    public ResponseEntity<Order> addToShoppingCart(@PathVariable Integer orderId, @Valid @RequestBody List<OrderDetailEntity> addedDetails) {
         Order order = new Order();
         order.setId(orderId);
 
         Order updatedOrder = orderService.addToShoppingCart(order, addedDetails);
 
-        if (updatedOrder == null) {
-            return ResponseEntity.badRequest().body("No se pudo agregar los detalles a la orden de compra.");
-        }
-
         return ResponseEntity.ok(updatedOrder);
     }
 
     @PutMapping("/shopping-cart/{orderId}/remove-details")
-    public ResponseEntity<?> removeFromShoppingCart(@PathVariable Integer orderId, @RequestBody List<Integer> removedDetailIds) {
+    public ResponseEntity<Order> removeFromShoppingCart(@PathVariable Integer orderId, @RequestBody List<Integer> removedDetailIds) {
         Order order = new Order();
         order.setId(orderId);
 
         Order updatedOrder = orderService.removeFromShoppingCart(order, removedDetailIds);
 
-        if (updatedOrder == null) {
-            return ResponseEntity.badRequest().body("No se pudieron eliminar los detalles de la orden de compra.");
-        }
-
         return ResponseEntity.ok(updatedOrder);
     }
 
     @PutMapping("/{orderId}/change-to-order")
-    public ResponseEntity<?> changeToOrder(@PathVariable Integer orderId) {
+    public ResponseEntity<Order> changeToOrder(@PathVariable Integer orderId) {
         Order order = orderService.changeToOrder(orderId);
-        if (order == null) {
-            return ResponseEntity.badRequest().body("No se pudo actualizar el estado de la orden de compra.");
-        }
         return ResponseEntity.ok(order);
     }
     @PutMapping("/{orderId}/add-details")
-    public ResponseEntity<?> addToOrder(@PathVariable Integer orderId, @RequestBody List<OrderDetailEntity> addedDetails) {
+    public ResponseEntity<Order> addToOrder(@PathVariable Integer orderId, @RequestBody List<OrderDetailEntity> addedDetails) {
         Order order = new Order();
         order.setId(orderId);
 
         Order updatedOrder = orderService.addToOrder(order, addedDetails);
 
-        if (updatedOrder == null) {
-            return ResponseEntity.badRequest().body("No se pudo agregar los detalles a la orden de compra.");
-        }
-
         return ResponseEntity.ok(updatedOrder);
     }
     @PutMapping("/{orderId}/remove-details")
-    public ResponseEntity<?> removeFromOrder(@PathVariable Integer orderId, @RequestBody List<Integer> removedDetailIds) {
+    public ResponseEntity<Order> removeFromOrder(@PathVariable Integer orderId, @RequestBody List<Integer> removedDetailIds) {
         Order order = new Order();
         order.setId(orderId);
 
         Order updatedOrder = orderService.removeFromOrder(order, removedDetailIds);
 
-        if (updatedOrder == null) {
-            return ResponseEntity.badRequest().body("No se pudieron eliminar los detalles de la orden de compra.");
-        }
-
         return ResponseEntity.ok(updatedOrder);
     }
     @PutMapping("/{orderId}/back-to-shopping-cart")
-    public ResponseEntity<?> backToShoppingCart(@PathVariable Integer orderId) {
+    public ResponseEntity<Order> backToShoppingCart(@PathVariable Integer orderId) {
         Order order = orderService.backToShoppingCart(orderId);
-        if (order == null) {
-            return ResponseEntity.badRequest().body("No se pudo actualizar el estado de la orden de compra.");
-        }
         return ResponseEntity.ok(order);
     }
     @PutMapping("/{orderId}/change-to-booked")
-    public ResponseEntity<?> changeToBooked(@PathVariable Integer orderId) {
-        try {
-            Order order = orderService.changeToBooked(orderId);
-            if (order == null) {
-                return ResponseEntity.badRequest().body("No se pudo actualizar el estado de la orden de compra.");
-            }
-            return ResponseEntity.ok(order);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+    public ResponseEntity<Order> changeToBooked(@PathVariable Integer orderId) {
+        Order order = orderService.changeToBooked(orderId);
+        return ResponseEntity.ok(order);
     }
 }
