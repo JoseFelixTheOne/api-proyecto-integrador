@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -19,7 +18,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
 
 @Service
 public class OrderServiceImpl implements OrderService {
@@ -43,19 +41,11 @@ public class OrderServiceImpl implements OrderService {
     @Transactional
     public Order shoppingCart(Order order, List<OrderDetailEntity> orderDetails) {
         try {
-            LocalDateTime currentDateTime = LocalDateTime.now();
-            order.setTimestamp(currentDateTime);
-            order.setStatus("SHOPPING CART");
-
-            if (order.getUserid() == null) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El campo 'userId' es requerido.");
-            }
-            if (order.getTotal() == null) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El campo 'total' es requerido.");
-            }
+            order.setTimestamp(LocalDateTime.now());
+            order.setTotal(calculateTotal(orderDetails));
 
             jdbcTemplate.update("INSERT INTO orders (userId, total, timestamp, active, deleted, status, step) VALUES (?, ?, ?, ?, ?, ?, ?)",
-                    order.getUserid(), order.getTotal(), currentDateTime, order.getActive(), order.getDeleted(), order.getStatus(), order.getStep());
+                    order.getUserid(), order.getTotal(), order.getTimestamp(), order.getActive(), order.getDeleted(), order.getStatus(), order.getStep());
 
             String selectLastOrderIdSQL = "SELECT MAX(id) FROM orders WHERE userId = ?";
             Integer orderId = jdbcTemplate.queryForObject(selectLastOrderIdSQL, Integer.class, order.getUserid());
@@ -67,50 +57,51 @@ public class OrderServiceImpl implements OrderService {
                 detail.setOrderid(order.getId());
                 detail.setDeleted(false);
 
-                if (detail.getStartedtime() == null) {
-                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El campo 'startedtime' es requerido.");
-                }
-                if (detail.getEndtime() == null) {
-                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El campo 'endtime' es requerido.");
-                }
-
                 jdbcTemplate.update("INSERT INTO order_detail (id, orderId, subtotal, price, days, roomId, bookedTime, startedTime, endTime, deleted) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                         detail.getId(), detail.getOrderid(), detail.getSubtotal(), detail.getPrice(), detail.getDays(), detail.getRoomid(), detail.getBookedtime(), detail.getStartedtime(), detail.getEndtime(), detail.getDeleted());
             }
 
             return order;
-        } catch (Exception e) {
-            System.err.println("Error " + e.getMessage());
+        } catch (ResponseStatusException e) {
+            throw new ResponseStatusException(e.getStatusCode(), e.getReason());
+        }
+        catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Se produjo un error al procesar la solicitud.");
         }
     }
     @Override
     public Order getLastShoppingCart(Integer userId) {
-        String selectLastOrderSQL =
-                "SELECT id, userId, total, timestamp, active, deleted, status, step " +
-                        "FROM orders " +
-                        "WHERE userId = ? AND status = 'SHOPPING CART' " +
-                        "ORDER BY id DESC LIMIT 1";
+        try {
+            String selectLastOrderSQL =
+                    "SELECT id, userId, total, timestamp, active, deleted, status, step " +
+                            "FROM orders " +
+                            "WHERE userId = ? AND status = 'SHOPPING CART' " +
+                            "ORDER BY id DESC LIMIT 1";
 
-        Order order = jdbcTemplate.queryForObject(selectLastOrderSQL, new Object[]{userId}, (rs, rowNum) -> {
-            Order orderC = new Order();
-            orderC.setId(rs.getInt("id"));
-            orderC.setUserid(rs.getInt("userId"));
-            orderC.setTotal(rs.getBigDecimal("total"));
-            orderC.setTimestamp(rs.getTimestamp("timestamp").toLocalDateTime());
-            orderC.setActive(rs.getBoolean("active"));
-            orderC.setDeleted(rs.getBoolean("deleted"));
-            orderC.setStatus(rs.getString("status"));
-            orderC.setStep(rs.getString("step"));
-            return orderC;
-        });
+            Order order = jdbcTemplate.queryForObject(selectLastOrderSQL, new Object[]{userId}, (rs, rowNum) -> {
+                Order orderC = new Order();
+                orderC.setId(rs.getInt("id"));
+                orderC.setUserid(rs.getInt("userId"));
+                orderC.setTotal(rs.getBigDecimal("total"));
+                orderC.setTimestamp(rs.getTimestamp("timestamp").toLocalDateTime());
+                orderC.setActive(rs.getBoolean("active"));
+                orderC.setDeleted(rs.getBoolean("deleted"));
+                orderC.setStatus(rs.getString("status"));
+                orderC.setStep(rs.getString("step"));
+                return orderC;
+            });
 
-        if (order != null) {
             List<OrderDetailEntity> orderDetails = getOrderDetailsByOrderId(order.getId());
             order.setOrderDetails(orderDetails);
-        }
 
-        return order;
+            return order;
+        } catch (ResponseStatusException e) {
+            throw new ResponseStatusException(e.getStatusCode(), e.getReason());
+        } catch (NullPointerException ex) {
+            throw new NullPointerException();
+        } catch (Exception ex) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
+        }
     }
     @Override
     @Transactional
@@ -118,8 +109,9 @@ public class OrderServiceImpl implements OrderService {
         try {
             Order existingOrder = getOrderById(order.getId());
 
+
             if (existingOrder == null || !existingOrder.getStatus().equals("SHOPPING CART") || !existingOrder.getActive() || existingOrder.getDeleted()) {
-                throw new IllegalArgumentException("La orden no existe, no está en estado 'SHOPPING CART', o está inactiva o eliminada.");
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND,"La orden no existe, no está en estado 'SHOPPING CART', o está inactiva o eliminada.");
             }
 
             int maxDetailId = getMaxOrderDetailId(existingOrder.getId());
@@ -129,11 +121,6 @@ public class OrderServiceImpl implements OrderService {
                 newDetail.setId(maxDetailId);
                 newDetail.setOrderid(existingOrder.getId());
                 newDetail.setDeleted(false);
-
-                if (newDetail.getStartedtime() == null || newDetail.getEndtime() == null) {
-                    throw new IllegalArgumentException("Los campos 'startedtime' y 'endtime' son requeridos para los nuevos detalles.");
-                }
-
                 jdbcTemplate.update("INSERT INTO order_detail (id, orderId, subtotal, price, days, roomId, bookedTime, startedTime, endTime, deleted) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                         newDetail.getId(), newDetail.getOrderid(), newDetail.getSubtotal(), newDetail.getPrice(), newDetail.getDays(),
                         newDetail.getRoomid(), newDetail.getBookedtime(), newDetail.getStartedtime(), newDetail.getEndtime(), newDetail.getDeleted());
@@ -148,9 +135,12 @@ public class OrderServiceImpl implements OrderService {
             jdbcTemplate.update("UPDATE orders SET total = ? WHERE id = ?", existingOrder.getTotal(), existingOrder.getId());
 
             return existingOrder;
-        } catch (Exception e) {
-            System.err.println("Error: " + e.getMessage());
-            return null;
+        } catch (ResponseStatusException e) {
+            throw new ResponseStatusException(e.getStatusCode(), e.getReason());
+        } catch (NullPointerException ex) {
+            throw new NullPointerException();
+        } catch (Exception ex) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
         }
     }
     @Override
@@ -377,9 +367,9 @@ public class OrderServiceImpl implements OrderService {
             detail.setPrice(rs.getBigDecimal("price"));
             detail.setDays(rs.getDouble("days"));
             detail.setRoomid(rs.getInt("roomId"));
-            detail.setBookedtime(rs.getTimestamp("bookedTime"));
-            detail.setStartedtime(rs.getTimestamp("startedTime") != null ? rs.getTimestamp("startedTime") : null);
-            detail.setEndtime(rs.getTimestamp("endTime") != null ? rs.getTimestamp("endTime") : null);
+            detail.setBookedtime(rs.getTimestamp("bookedTime").toLocalDateTime().toLocalDate());
+            detail.setStartedtime(rs.getTimestamp("startedTime") != null ? rs.getTimestamp("startedTime").toLocalDateTime().toLocalDate() : null);
+            detail.setEndtime(rs.getTimestamp("endTime") != null ? rs.getTimestamp("endTime").toLocalDateTime().toLocalDate() : null);
             detail.setDeleted(rs.getBoolean("deleted"));
             detail.setOrderid(orderId);
             return detail;
@@ -400,9 +390,9 @@ public class OrderServiceImpl implements OrderService {
             detail.setPrice(rs.getBigDecimal("price"));
             detail.setDays(rs.getDouble("days"));
             detail.setRoomid(rs.getInt("roomId"));
-            detail.setBookedtime(rs.getTimestamp("bookedTime"));
-            detail.setStartedtime(rs.getTimestamp("startedTime") != null ? rs.getTimestamp("startedTime") : null);
-            detail.setEndtime(rs.getTimestamp("endTime") != null ? rs.getTimestamp("endTime") : null);
+            detail.setBookedtime(rs.getTimestamp("bookedTime").toLocalDateTime().toLocalDate());
+            detail.setStartedtime(rs.getTimestamp("startedTime") != null ? rs.getTimestamp("startedTime").toLocalDateTime().toLocalDate() : null);
+            detail.setEndtime(rs.getTimestamp("endTime") != null ? rs.getTimestamp("endTime").toLocalDateTime().toLocalDate() : null);
             detail.setDeleted(rs.getBoolean("deleted"));
             detail.setOrderid(orderId);
             return detail;

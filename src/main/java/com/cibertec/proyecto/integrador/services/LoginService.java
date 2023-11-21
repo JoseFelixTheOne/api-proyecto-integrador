@@ -1,5 +1,6 @@
 package com.cibertec.proyecto.integrador.services;
 
+import com.cibertec.proyecto.integrador.entity.User;
 import com.cibertec.proyecto.integrador.entity.Usuario;
 import com.cibertec.proyecto.integrador.generic.Cifrado;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +30,7 @@ public class LoginService {
 
     public Usuario loginUsuario(String nombreUsuario, String contra) {
         String cifrado = Cifrado.cifrarCadena(contra);
-        String consultaSql = "SELECT id, username, email, document, role FROM users WHERE username=? AND password=?";
+        String consultaSql = "SELECT id, username, email, document, role FROM users WHERE email=? AND password=?";
         try {
             Usuario usuarioEncontrado = jdbcTemplate.queryForObject(
                     consultaSql,
@@ -55,6 +56,16 @@ public class LoginService {
         try {
             return jdbcTemplate.queryForObject(consultaSql, new Object[]{username},
                     new BeanPropertyRowMapper<>(Usuario.class));
+        } catch (EmptyResultDataAccessException e) {
+            return null;
+        }
+    }
+
+    public User obtenerUsuarioPorEmail(String email) {
+        String consultaSql = "SELECT * FROM users WHERE email = ?";
+        try {
+            return jdbcTemplate.queryForObject(consultaSql, new Object[]{email},
+                    new BeanPropertyRowMapper<>(User.class));
         } catch (EmptyResultDataAccessException e) {
             return null;
         }

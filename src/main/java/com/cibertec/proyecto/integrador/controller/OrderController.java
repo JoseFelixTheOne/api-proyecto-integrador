@@ -3,6 +3,7 @@ package com.cibertec.proyecto.integrador.controller;
 import com.cibertec.proyecto.integrador.entity.Order;
 import com.cibertec.proyecto.integrador.entity.OrderDetailEntity;
 import com.cibertec.proyecto.integrador.services.OrderService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,33 +22,19 @@ public class OrderController {
     }
 
     @PostMapping("/shopping-cart")
-    public ResponseEntity<?> createOrderWithDetails(@RequestBody Order order) {
+    public ResponseEntity<Order> createOrderWithDetails(@Valid @RequestBody Order order) {
         List<OrderDetailEntity> orderDetails = order.getOrderDetails();
-
-        if (orderDetails == null || orderDetails.isEmpty()) {
-            return ResponseEntity.badRequest().body("La orden debe tener al menos un detalle.");
-        }
-
-        try {
-            Order createdOrder = orderService.shoppingCart(order, orderDetails);
-            return ResponseEntity.ok(createdOrder);
-        } catch (ResponseStatusException ex) {
-            return ResponseEntity.status(ex.getStatusCode()).body(ex.getReason());
-        }
+        Order createdOrder = orderService.shoppingCart(order, orderDetails);
+        return ResponseEntity.ok(createdOrder);
     }
 
-    @GetMapping("/shopping-cart/{userId}")
-    public ResponseEntity<?> getLastShoppingCart(@PathVariable Integer userId) {
+    @GetMapping("/{userId}/shopping-cart")
+    public ResponseEntity<Order> getLastShoppingCart(@PathVariable Integer userId) {
         Order lastShoppingCart = orderService.getLastShoppingCart(userId);
-
-        if (lastShoppingCart == null) {
-            return ResponseEntity.notFound().build();
-        }
-
         return ResponseEntity.ok(lastShoppingCart);
     }
 
-    @PutMapping("/shopping-cart/add-details/{orderId}")
+    @PutMapping("/shopping-cart/{orderId}/add-details")
     public ResponseEntity<?> addToShoppingCart(@PathVariable Integer orderId, @RequestBody List<OrderDetailEntity> addedDetails) {
         Order order = new Order();
         order.setId(orderId);
@@ -61,7 +48,7 @@ public class OrderController {
         return ResponseEntity.ok(updatedOrder);
     }
 
-    @PutMapping("/shopping-cart/remove-details/{orderId}")
+    @PutMapping("/shopping-cart/{orderId}/remove-details")
     public ResponseEntity<?> removeFromShoppingCart(@PathVariable Integer orderId, @RequestBody List<Integer> removedDetailIds) {
         Order order = new Order();
         order.setId(orderId);
@@ -75,7 +62,7 @@ public class OrderController {
         return ResponseEntity.ok(updatedOrder);
     }
 
-    @PutMapping("/change-to-order/{orderId}")
+    @PutMapping("/{orderId}/change-to-order")
     public ResponseEntity<?> changeToOrder(@PathVariable Integer orderId) {
         Order order = orderService.changeToOrder(orderId);
         if (order == null) {
@@ -83,7 +70,7 @@ public class OrderController {
         }
         return ResponseEntity.ok(order);
     }
-    @PutMapping("/add-details/{orderId}")
+    @PutMapping("/{orderId}/add-details")
     public ResponseEntity<?> addToOrder(@PathVariable Integer orderId, @RequestBody List<OrderDetailEntity> addedDetails) {
         Order order = new Order();
         order.setId(orderId);
@@ -96,7 +83,7 @@ public class OrderController {
 
         return ResponseEntity.ok(updatedOrder);
     }
-    @PutMapping("/remove-details/{orderId}")
+    @PutMapping("/{orderId}/remove-details")
     public ResponseEntity<?> removeFromOrder(@PathVariable Integer orderId, @RequestBody List<Integer> removedDetailIds) {
         Order order = new Order();
         order.setId(orderId);
@@ -109,7 +96,7 @@ public class OrderController {
 
         return ResponseEntity.ok(updatedOrder);
     }
-    @PutMapping("/back-to-shopping-cart/{orderId}")
+    @PutMapping("/{orderId}/back-to-shopping-cart")
     public ResponseEntity<?> backToShoppingCart(@PathVariable Integer orderId) {
         Order order = orderService.backToShoppingCart(orderId);
         if (order == null) {
@@ -117,7 +104,7 @@ public class OrderController {
         }
         return ResponseEntity.ok(order);
     }
-    @PutMapping("/change-to-booked/{orderId}")
+    @PutMapping("/{orderId}/change-to-booked")
     public ResponseEntity<?> changeToBooked(@PathVariable Integer orderId) {
         try {
             Order order = orderService.changeToBooked(orderId);

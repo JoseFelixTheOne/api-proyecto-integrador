@@ -26,10 +26,4 @@ public class RoomEntity {
     private String image;
 
 
-
-
-//    @OneToMany(mappedBy = "room", fetch = FetchType.LAZY)
-//    private List<OrderDetailEntity> orderDetails;
-
 }
-

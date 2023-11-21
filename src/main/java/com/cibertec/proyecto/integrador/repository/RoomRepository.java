@@ -8,6 +8,6 @@ import java.util.Optional;
 
 public interface RoomRepository extends JpaRepository<RoomEntity, Integer> {
 
-    public List<RoomEntity> getRoomByName(String name);
+    public List<RoomEntity> searchByNameContains(String name);
     public List<RoomEntity> getRoomByFloor(int floor);
 }
