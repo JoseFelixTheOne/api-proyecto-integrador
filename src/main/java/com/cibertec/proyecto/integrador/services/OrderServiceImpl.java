@@ -2,6 +2,7 @@ package com.cibertec.proyecto.integrador.services;
 
 import com.cibertec.proyecto.integrador.entity.Order;
 import com.cibertec.proyecto.integrador.entity.OrderDetailEntity;
+import com.cibertec.proyecto.integrador.entity.RoomEntity;
 import com.cibertec.proyecto.integrador.repository.OrderDetailRepository;
 import com.cibertec.proyecto.integrador.repository.OrderRepository;
 import com.cibertec.proyecto.integrador.repository.RoomRepository;
@@ -23,11 +24,13 @@ import java.time.LocalDateTime;
 public class OrderServiceImpl implements OrderService {
     private final JdbcTemplate jdbcTemplate;
     private int lastOrderDetailId = 0;
+    private RoomRepository roomRepository;
 
     @Autowired
     public OrderServiceImpl(JdbcTemplate jdbcTemplate, RoomRepository roomRepository, OrderRepository orderRepository,
                             OrderDetailRepository orderDetailRepository) {
         this.jdbcTemplate = jdbcTemplate;
+        this.roomRepository = roomRepository;
     }
 
     @Override
@@ -49,7 +52,8 @@ public class OrderServiceImpl implements OrderService {
                 detail.setId(nextOrderDetailId);
                 detail.setOrderid(order.getId());
                 detail.setDeleted(false);
-
+                RoomEntity room = roomRepository.findById(detail.getRoomid()).orElse(null);
+                detail.setRoom(room);
                 jdbcTemplate.update("INSERT INTO order_detail (id, orderId, subtotal, price, days, roomId, bookedTime, startedTime, endTime, deleted) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                         detail.getId(), detail.getOrderid(), detail.getSubtotal(), detail.getPrice(), detail.getDays(), detail.getRoomid(), detail.getBookedtime(), detail.getStartedtime(), detail.getEndtime(), detail.getDeleted());
             }
@@ -85,6 +89,7 @@ public class OrderServiceImpl implements OrderService {
             });
 
             List<OrderDetailEntity> orderDetails = getOrderDetailsByOrderId(order.getId());
+            setRoomToDetails(orderDetails);
             order.setOrderDetails(orderDetails);
 
             return order;
@@ -119,6 +124,7 @@ public class OrderServiceImpl implements OrderService {
             }
 
             List<OrderDetailEntity> existingDetails = getOrderDetailsByOrderId(existingOrder.getId());
+            setRoomToDetails(existingDetails);
             existingOrder.setOrderDetails(existingDetails);
 
             BigDecimal newTotal = calculateTotal(existingDetails);
@@ -150,6 +156,7 @@ public class OrderServiceImpl implements OrderService {
             }
 
             List<OrderDetailEntity> existingDetails = getOrderDetailsByOrderId(existingOrder.getId());
+            setRoomToDetails(existingDetails);
             existingOrder.setOrderDetails(existingDetails);
 
             BigDecimal newTotal = calculateTotal(existingDetails);
@@ -180,6 +187,8 @@ public class OrderServiceImpl implements OrderService {
             existingOrder.setStatus("ORDER");
 
             jdbcTemplate.update("UPDATE orders SET status = ? WHERE id = ?", existingOrder.getStatus(), existingOrder.getId());
+
+            setRoomToDetails(existingOrder.getOrderDetails());
 
             return existingOrder;
         } catch (Exception e) {
@@ -212,6 +221,7 @@ public class OrderServiceImpl implements OrderService {
             }
 
             List<OrderDetailEntity> existingDetails = getOrderDetailsByOrderId(existingOrder.getId());
+            setRoomToDetails(existingDetails);
             existingOrder.setOrderDetails(existingDetails);
 
             BigDecimal newTotal = calculateTotal(existingDetails);
@@ -241,6 +251,7 @@ public class OrderServiceImpl implements OrderService {
             }
 
             List<OrderDetailEntity> existingDetails = getDetailsNotDeletedByOrderId(existingOrder.getId());
+            setRoomToDetails(existingDetails);
             existingOrder.setOrderDetails(existingDetails);
 
             BigDecimal newTotal = calculateTotal(existingDetails);
@@ -273,6 +284,7 @@ public class OrderServiceImpl implements OrderService {
             jdbcTemplate.update("UPDATE order_detail SET deleted = false WHERE orderId = ? AND deleted = true", existingOrder.getId());
 
             List<OrderDetailEntity> existingDetails = getOrderDetailsByOrderId(existingOrder.getId());
+            setRoomToDetails(existingDetails);
             existingOrder.setOrderDetails(existingDetails);
 
             BigDecimal newTotal = calculateTotal(existingDetails);
@@ -303,6 +315,8 @@ public class OrderServiceImpl implements OrderService {
             existingOrder.setStatus("BOOKED");
 
             jdbcTemplate.update("UPDATE orders SET status = ? WHERE id = ?", existingOrder.getStatus(), existingOrder.getId());
+
+            setRoomToDetails(existingOrder.getOrderDetails());
 
             return existingOrder;
         } catch (Exception e) {
@@ -407,6 +421,13 @@ public class OrderServiceImpl implements OrderService {
         }
 
         return maxOrderDetailId + 1;
+    }
+
+    private void setRoomToDetails(List<OrderDetailEntity> details){
+        for (OrderDetailEntity detail: details) {
+            RoomEntity room = roomRepository.findById(detail.getRoomid()).orElse(null);
+            detail.setRoom(room);
+        }
     }
 
 }
