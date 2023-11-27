@@ -32,6 +32,5 @@ public class Order {
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @NotNull(message = "Debe haber al menos un 'orderDetail'.")
-    @Size(min = 1, message = "Debe haber al menos un 'orderDetail'.")
     private List<OrderDetailEntity> orderDetails;
 }
